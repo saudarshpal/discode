@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import { signinValid, signupValid } from "../zod/userzod.js";
 import { JWT_TOKEN } from "../config.js";
 import nodemailer from 'nodemailer';
+import cloudinary from 'cloudinary';
 import {v4 as uuidv4 } from 'uuid' ;
 
 
@@ -21,6 +22,12 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+
+cloudinary.config({
+    cloud_name : process.env.CLOUDINARY_CLOUD_NAME,
+    cloud_api : process.env.CLOUDINARY_API_KEY,
+    cloud_secret : process.env.CLOUDINARY_API_SECRET
+})
 
 
 export const Verify = async(req,res)=>{

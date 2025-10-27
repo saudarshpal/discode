@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { string } from "zod/v4";
 
 
 const userSchema = new mongoose.Schema({
@@ -34,6 +35,16 @@ const userSchema = new mongoose.Schema({
         bio :{
             type : String,
             maxLength : 150,
+        },
+        avatar : {
+            exists : {
+                type : Boolean,
+                default : false
+            },
+            url : {
+                type : String,
+                default : null
+            }
         }
     },
     verificationToken :{
