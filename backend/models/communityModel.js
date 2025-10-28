@@ -27,7 +27,8 @@ const communitySchema = new mongoose.Schema({
       },
       created : {
         type : Date,
-        default : new Date.now()
+        default : Date.now(),
+        immutable : true
       },
       subscribers : {
             type : mongoose.Schema.Types.ObjectId,
@@ -45,7 +46,7 @@ const communitySchema = new mongoose.Schema({
       }   
 })
 
-
-const Community = new mongoose.model('Community',communitySchema)
+const Community = mongoose.model('Community',communitySchema)
 
 export default Community
+

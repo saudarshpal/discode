@@ -1,33 +1,14 @@
 import User from "../models/userModel.js";
+import { signinValid, signupValid } from "../zod/userzod.js";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
-import { signinValid, signupValid } from "../zod/userzod.js";
-import { JWT_TOKEN } from "../config.js";
-import nodemailer from 'nodemailer';
-import cloudinary from 'cloudinary';
+import {v2 as cloudinary}  from 'cloudinary'
+import { JWT_TOKEN ,transporter } from "../config.js";
 import {v4 as uuidv4 } from 'uuid' ;
-
-
+import Community from "../models/communityModel.js"
+import dotenv from 'dotenv'
 dotenv.config()
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    type: "OAuth2",
-    user: process.env.EMAIL_USER,
-    clientId: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
-  },
-});
-
-
-cloudinary.config({
-    cloud_name : process.env.CLOUDINARY_CLOUD_NAME,
-    cloud_api : process.env.CLOUDINARY_API_KEY,
-    cloud_secret : process.env.CLOUDINARY_API_SECRET
-})
 
 
 export const Verify = async(req,res)=>{
@@ -45,11 +26,10 @@ export const Verify = async(req,res)=>{
         
         return res.status(200).json({msg: "Email Verified"})
     }catch(error) {
+        console.log(err)
         return res.status(500).json({msg: "Nodemailer Error"})
     }
 }
-
-
 
 export const Signup = async(req,res)=>{
 
@@ -92,25 +72,25 @@ export const Signup = async(req,res)=>{
         return res.status(200).json({message : "user created ",token : token})
 
     }catch(err){
-        return res.status(500).json({message : "Error registering user ",err})
+        console.log(err)
+        return res.status(500).json({message : "User Signup Error"})
     }
 }
 
-
-export const Signin = (req,res)=>{
-    const {email,passsword} = req.body
+export const Signin = async(req,res)=>{
+    const {email,password} = req.body
     const {success} = signinValid.safeParse(req.body)
     if(!success){
         return res.status(400).json({message: "enter valid inputs"})
     }
 
     try{
-        const user = User.findOne({email})
+        const user = await User.findOne({email})
         if(!user){
             return res.status(404).json({message : "User Not Found"})
         }
 
-        const isPasswordValid = bcrypt.compare(password,user.password)
+        const isPasswordValid = await bcrypt.compare(password,user.password)
         if(!isPasswordValid){
             return res.status(401).json({message : "Invalid Credentials"})
         }
@@ -120,6 +100,186 @@ export const Signin = (req,res)=>{
         const token = jwt.sign({userId},JWT_TOKEN,{expiresIn:'1h'})
         return res.status(200).json({message : "Signin Successful", token : token})   
     }catch(err){
-        return res.status(500).json({message : "Error signing in user ",err})
+        console.log(err)
+        return res.status(500).json({message : "Sign in Error "})
+    }
+}
+
+export const getUserById = async(req,res)=>{
+    const userId = req.userId
+    try{
+        const user = await User.findById(userId)
+        if(!user){
+            return res.status(404).json({msg : "User not Found"})
+        }
+        return res.status(200).json({user : user})
+    }catch(err){
+        console.log(err)
+        return res.status(500).json({msg : "Internal Server Error"})
+    }
+}
+
+export const getUsers = async(req,res)=>{
+    const filter = req.query.filter || ""
+
+    let users = await User.find({
+            username : {"$regex" : filter, "$options": "i"}
+    })
+    users = users.filter(user => user._id.toString() !== req.userId)
+    return res.status(200).json({user : users.map(user=>({
+        _id : user._id,
+        username : user.username,
+        displayName: user.profile?.displayName 
+    }))}) 
+}
+
+export const createProfile = async(req,res)=>{
+
+    const {displayName,description} = req.body
+    const userId = req.userId
+    let avatarUrl,bannerUrl
+
+    try {
+        let user = await User.findOne({_id : userId})
+        if(!user){
+            return res.status(404).json({msg : "user not found"})
+        }
+        if(req.files?.avatar){
+            const result = await  cloudinary.uploader.upload(req.file.avatar)
+            avatarUrl = result.secure_url
+        }
+        if(req.files?.banner){
+            const result = await cloudinary.uploader.upload(req.file.banner)
+            bannerUrl = result.secure_url
+        }
+        const profile = user.profile = {
+            displayName,description,
+            avatar : { 
+                exists : avatarUrl ? true : false,
+                url  : avatarUrl
+            },
+            banner :{
+                exists : bannerUrl ? true : false,
+                url : bannerUrl
+            }
+        }
+        await user.save()
+        return res.status(200).json({msg : "Profile Created"})
+    }catch(err){
+        console.log(err)
+        return res.status(500).json({msg : "Internal Server Error"})
+    }
+}
+ 
+export const followUser = async(req,res)=>{
+    const userId = req.userId
+    const {followUserId} = req.params
+    try{
+        const user = await User.findById(userId)
+        const followUser = await User.findById(followUserId)
+        if(!user || !followUser){
+            return res.status(404).json({msg : "User Not Found"})
+        }
+        if(user.following.includes(followUserId)){
+            return res.status(400).json({msg : "Already Following"})
+        }
+        user.following.push(followUserId)
+        followUser.followers.push(userId)
+        await user.save()
+        await followUser.save()
+        return res.status(200).json({msg : "User Followed"}) 
+    }catch(err){
+        console.log(err)
+        return res.status(500).json({msg : "Internal Server Error"})
+    }
+}
+
+export const unfollowUser = async(req,res)=>{
+    const userId = req.userId
+    const {unfollowUserId} = req.params
+    try{
+        const user = await User.findById(userId)
+        const unfollowUser = await User.findById(unfollowUserId) 
+        if(!user || !unfollowUser){
+            return res.status(404).json({msg : "User Not Found"})
+        }       
+        if( !user.followring.includes(unfollowUserId)){
+            return res.status(400).json({msg : "Not Following"})
+        }
+        user.following = user.following.filter(id => id.toString() !== unfollowUserId)
+        unfollowUser.followers = unfollowUser.followers.filter(id => id.toString() !== userId)
+        await user.save()
+        await unfollowUser.save()
+        return res.status(200).json({msg : "User Unfollowed"}) 
+    }catch(err){
+        console.log(err)
+        return res.status(500).json({msg : "Internal Server Error"})
+    }
+
+}
+
+export const subscribe = async(req,res)=>{
+    const userId = req.userId
+    const {communityId} = req.params
+
+    try{
+        const community = await Community.findById(communityId)
+
+        if(!community){
+            return res.status(404).json({msg : "Community Not Found"})
+        }   
+
+        community.subscribers.push(userId)
+        community.count.subscribers += 1
+        await community.save()
+
+        return res.status(200).json({msg : "Community Followed"}) 
+    }catch(err){
+
+        console.log(err)
+        return res.status(500).json({msg : "Internal Server Error"})
+    }
+}
+
+
+export const unSubscribe = async(req,res)=>{
+    const userId = req.userId
+    const {communityId} = req.params 
+
+    try{
+        const community = await Community.findById(communityId)
+
+        if(!community){
+            return res.status(404).json({msg : "User or Community Not Found"})
+        }
+        if(!community.subscribers.includes(userId)){
+            return res.status(400).json({msg : "Not Subscribed"})
+        }
+
+        community.subscribers = community.subscribers.filter(id => id.toString() !== userId)
+        community.count.subscribers -= 1
+        await community.save()
+
+        return res.status(200).json({msg : "Community Unfollowed"}) 
+    }catch(err){           
+
+        console.log(err)
+        return res.status(500).json({msg : "Internal Server Error"})
+    }
+}
+
+
+export const getCommunities = async(req,res)=>{
+    const userId = req.userId
+
+    try{
+        let communities = await Community.find({
+            subscribers : userId
+        })
+        return res.status(200).json({communities})
+    }catch(err){
+
+        console.log(err)
+        return res.status(500).json({msg : "Internal Server Error"})
     }
 }

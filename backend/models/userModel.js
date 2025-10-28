@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { string } from "zod/v4";
+
 
 
 const userSchema = new mongoose.Schema({
@@ -29,15 +29,35 @@ const userSchema = new mongoose.Schema({
     following : [
         {
             type : mongoose.Schema.Types.ObjectId,
+            ref : 'User'
         }
     ],
     profile : {
-        bio :{
+        displayName:{
+        type : String,
+        minLength : 3,
+        },
+        gender : {
+           type : String,
+           default : null,
+           enum : ['Male',"Female","Others"]
+        },
+        description :{
             type : String,
             maxLength : 150,
         },
         avatar : {
             exists : {
+                type : Boolean,
+                default : false
+            },
+            url : {
+                type : String,
+                default : null
+            }
+        },
+        banner:{
+            exists: {
                 type : Boolean,
                 default : false
             },
