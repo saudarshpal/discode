@@ -16,11 +16,6 @@ const communitySchema = new mongoose.Schema({
         type : [mongoose.Schema.Types.ObjectId],
         ref : 'User'
       },
-      title : {
-        type : String,
-        required : true,
-        maxLength : 50,
-      },
       description : {
         type : String,
         required : true 
@@ -30,8 +25,12 @@ const communitySchema = new mongoose.Schema({
         default : Date.now(),
         immutable : true
       },
+      posts : {
+            type : [mongoose.Schema.Types.ObjectId],
+            ref : 'Post'
+      },
       subscribers : {
-            type : mongoose.Schema.Types.ObjectId,
+            type : [mongoose.Schema.Types.ObjectId],
             ref : 'User'
       },
       count : {
@@ -43,7 +42,17 @@ const communitySchema = new mongoose.Schema({
                 type :Number,
                 default : 0,
             }
-      }   
+      },
+      banner:{
+            exists: {
+                type : Boolean,
+                default : false
+            },
+            url : {
+                type : String,
+                default : null
+            }
+        } 
 })
 
 const Community = mongoose.model('Community',communitySchema)

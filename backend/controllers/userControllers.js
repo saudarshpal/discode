@@ -2,12 +2,13 @@ import User from "../models/userModel.js";
 import { signinValid, signupValid } from "../zod/userzod.js";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import {v2 as cloudinary}  from 'cloudinary'
+import cloudinary from "../config.js";
 import { JWT_TOKEN ,transporter } from "../config.js";
 import {v4 as uuidv4 } from 'uuid' ;
 import Community from "../models/communityModel.js"
 import dotenv from 'dotenv'
 dotenv.config()
+
 
 
 
@@ -137,30 +138,30 @@ export const createProfile = async(req,res)=>{
 
     const {displayName,description} = req.body
     const userId = req.userId
-    let avatarUrl,bannerUrl
+    let avatarUrl,userBannerUrl
 
     try {
-        let user = await User.findOne({_id : userId})
+        let user = await User.findById(userId)
         if(!user){
             return res.status(404).json({msg : "user not found"})
         }
-        if(req.files?.avatar){
-            const result = await  cloudinary.uploader.upload(req.file.avatar)
+        if(req.files?.avatar && req.files.avatar[0]){
+            const result = await  cloudinary.uploader.upload(req.files.avatar[0].path)
             avatarUrl = result.secure_url
         }
-        if(req.files?.banner){
-            const result = await cloudinary.uploader.upload(req.file.banner)
-            bannerUrl = result.secure_url
+        if(req.files?.userBanner && req.files.userBanner[0]){
+            const result = await cloudinary.uploader.upload(req.files.userBanner[0].path)
+            userBannerUrl = result.secure_url
         }
-        const profile = user.profile = {
+        user.profile = {
             displayName,description,
             avatar : { 
                 exists : avatarUrl ? true : false,
                 url  : avatarUrl
             },
             banner :{
-                exists : bannerUrl ? true : false,
-                url : bannerUrl
+                exists : userBannerUrl ? true : false,
+                url : userBannerUrl
             }
         }
         await user.save()
@@ -203,7 +204,7 @@ export const unfollowUser = async(req,res)=>{
         if(!user || !unfollowUser){
             return res.status(404).json({msg : "User Not Found"})
         }       
-        if( !user.followring.includes(unfollowUserId)){
+        if( !user.following.includes(unfollowUserId)){
             return res.status(400).json({msg : "Not Following"})
         }
         user.following = user.following.filter(id => id.toString() !== unfollowUserId)
