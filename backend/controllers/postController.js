@@ -1,22 +1,268 @@
+import Community from "../models/communityModel.js"
 import Post from "../models/postModel.js"
+import User from "../models/userModel.js"
+
 
 
 export const createPost = async(req,res)=>{
-    const userID = req.userId
-    const{title,content} = req.body
+    const userId = req.userId
+    const {title,content,communityName} = req.body
     try{
-        let user = await  User.findById(userID)
-        if(!user){
-            return res.status(400).json({msg:"user not found"})
+        let user = await User.findById(userId) 
+        let community = await Community.findOne({
+            name : communityName
+        })
+        if(!user || !community){
+            return res.status(400).json({
+                msg:"User/Community not found"
+            })
         }
         await Post.create({
-            title,content, author : userId
+            title,
+            content,
+            author : userId,
+            community : community._id
         })
-        return res.status(200).json({msg : "Post Created"})
+        return res.status(200).json({
+            msg : "Post Created"
+        })
     }catch(err){
         console.log(err)
-        return res.status(500).json({msg:"Internal server error"})
+        return res.status(500).json({
+            msg:"Internal server error"
+        })
     }
 }
+
+export const deletePost = async(req,res)=>{ 
+    const userId = req.userId
+    const {postId} = req.params 
+    try{
+        let post = await Post.findById(postId)
+        if(!post){
+            return res.status(404).json({
+                msg : "Post not found"
+            })
+        }   
+        if(post.author.toString() !== userId){
+            return res.status(403).json({
+                msg : "Unauthorized "
+            })
+        }       
+        await Post.findByIdAndDelete(postId)
+        return res.status(200).json({
+            msg : "Post Deleted Successfully"
+        })
+    }catch(err){
+        console.log(err)
+        return res.status(500).json({       
+            msg : "Internal Server Error"
+        })
+    }   
+}
+
+export const getPostById = async(req,res)=>{
+    const {postId} = req.params 
+    try{        
+        let post = await Post.findById(postId)
+        if(!post){
+            return res.status(404).json({   
+                msg : "Post not found"
+            })
+        }
+        return res.status(200).json({
+            post
+        })
+    }catch(err){
+        console.log(err)
+        return res.status(500).json({       
+            msg : "Internal Server Error"
+        })
+    }
+}
+
+export const getAllPosts = async(req,res)=>{
+    try{
+        let posts = await Post.find({}) 
+        return res.status(200).json({
+            posts
+        })      
+    }catch(err){
+        console.log(err)
+        return res.status(500).json({   
+            msg : "Internal Server Error"
+        })          
+    }
+}
+
+export const getYourPosts = async(req,res)=>{
+    const userId = req.userId
+    try{
+        let posts = await Post.find({ author : userId})
+        return res.status(200).json({
+            posts
+        })      
+    }catch(err){
+        console.log(err)
+        return res.status(500).json({   
+            msg : "Internal Server Error"
+        })          
+    }
+}
+
+export const voteOnPost = async(req,res)=>{
+    const {postId} = req.params
+    const {voteType} = req.body
+    try{
+       let post = Post.findById(postId)
+       if(!post){
+            return res.status(404).json({
+                msg : "Invalid Posts"
+           })
+        }
+        if(voteType === "upvote"){
+            post.votes.upvotes ++;
+        } 
+        else if(voteType === "downvote"){
+            post.votes.downvotes ++;
+        }
+        else if(voteType === "removeUpvote" && post.votes.upvotes > 0){
+            post.votes.upvotes --;
+        }
+        else if(voteType === "removeDownvote" && post.votes.downvotes > 0){
+            post.votes.downvotes --;
+        }   
+        return res.status(200).json({
+            msg : "Voted Successfully"
+        })    
+    }catch(err){
+        console.log(err)
+        return res.status(500).json({
+            msg:"Internal server error"
+        })
+    }   
+}
+
+export const commentOnPost = async(req,res)=>{
+    const userId = req.userId
+    const {postId} = req.params
+    const {content} = req.body
+    try{
+        let post = await Post.findById(postId)
+        if(!post){
+            return res.status(404).json({
+                msg : "Post not found"
+            })
+        }
+        post.comments.push({
+            author : userId,
+            content
+        })
+        await post.save()
+        return res.status(200).json({
+            msg : "comment Added"
+        })
+    }catch(err){
+        console.log(err)
+        return res.status(500).json({
+            msg : "Internal Server Error"
+        })
+    }
+}
+
+export const getAllcomments = async(req,res)=>{
+    const {postId} = req.params
+    try{
+        let post = await Post.findById(postId)
+        if(!post){
+            return res.status(404).json({
+                msg : "Post not found"
+            })
+        }           
+        return res.status(200).json({
+            comments : post.comments
+        })
+    }catch(err){            
+        console.log(err)
+        return res.status(500).json({
+            msg : "Internal Server Error"
+        })
+    }   
+}
+
+export const deleteComment = async(req,res)=>{
+    const userId = req.userId
+    const {postId,commentId} = req.params
+    try{                        
+        let post = await Post.findById(postId)
+        if(!post){
+            return res.status(404).json({   
+                msg : "Post not found"
+            })
+        }
+        let comment = post.comments.find(comment => comment._id.toString() === commentId)
+        if(!comment){
+            return res.status(404).json({       
+                msg : "Comment not found"
+            })
+        }
+        if(comment.author.toString() !== userId){
+            return res.status(403).json({
+                msg : "Unauthorized "
+            })
+        }
+        post.comments = post.comments.filter(comment => comment._id.toString() !== commentId)
+        await post.save()
+        return res.status(200).json({
+            msg : "Comment Deleted Successfully"
+        })
+    }catch(err){
+        console.log(err)
+        return res.status(500).json({   
+            msg : "Internal Server Error"
+        })
+    }   
+}
+
+export const voteOnComment = async(req,res)=>{
+    const {postId,commentId} = req.params
+    const {voteType} = req.body
+    try{
+        let post = await Post.findById(postId)
+        if(!post){
+            return res.status(404).json({
+                msg : "Invalid Post"
+            })
+        }
+        let comment = post.comments.find(comment => comment._id.toString() === commentId)
+        if(!comment){
+            return res.status(404).json({
+                msg : "Invalid Comment"
+            })
+        }
+        if(voteType === "upvote" ){
+            comment.votes.upvotes ++;
+        }
+        else if(voteType === "downvote"){
+            comment.votes.downvotes ++;
+        }
+        else if(voteType === "removeUpvote" && comment.vote.upvotes > 0){
+            comment.votes.upvotes --;
+        }
+        else if(voteType === "removeDownvote" && comment.vote.downvotes > 0){
+            comment.votes.downvotes --;
+        }
+        return res.status(200).json({
+            msg : "Voted on comment"
+        })
+    }catch(err){
+        console.log(err)
+        return res.status(500).json({
+            msg : "Internal Server Error"
+        })
+    }
+}
+
+
 
 

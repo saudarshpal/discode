@@ -1,7 +1,6 @@
 import express from "express";
-import { createProfile,followUser, getCommunities, getUserById, getUsers, Signin, Signup, unfollowUser, unSubscribe,Verify } from "../controllers/userControllers.js";
+import { createProfile,followUser, getCommunities, getUserById, getUsers, Signin, Signup, subscribe, unfollowUser, unSubscribe,Verify } from "../controllers/userControllers.js";
 import multer from "multer";
-import { subscribe } from "diagnostics_channel";
 import { authMiddleware } from "../middlewares/auth.js";
 
 
