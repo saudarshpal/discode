@@ -23,7 +23,7 @@ const SignIn = ({toggle}) => {
             try{
               const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/user/sigin`,{
                     username,password })
-              localStorage.setItem('token',response.data.token)
+              localStorage.setItem('authHeader','Bearer '+response.data.token)
               {navigate("/homepage")}
             }catch(err){ console.log(err) }
           }}></Button>

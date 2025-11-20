@@ -9,17 +9,30 @@ const UserProfilePage = ({userId}) => {
   const [user,setUser] = useState({})
   const [userPosts,setUserPosts] = useState([])
   const [userCommunities,setUserCommunities] = useState([])
+  const authHeader = localStorage.getItem('authHeader')
   const totalposts = userPosts.length
   const getUser = async()=>{
-        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/user/${userId}`)
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/user/${userId}`,{
+        headers : {
+            'Authorization' : authHeader
+        }
+    })
         setUser(response.data.user)
     }
   const getUserPosts = async()=>{
-        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/post/user/own`)
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/post/user/own`,{
+        headers : {
+            'Authorization' : authHeader
+        }
+    })
         setUserPosts(response.data.posts)
     }
   const getUserCommunities = async()=>{
-        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/community/user/all`)
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/community/user/all`,{
+        headers : {
+            'Authorization' : authHeader
+        }
+    })
         setUserCommunities(response.data.userCommunities)
     }
   const handleFollow = async()=>{

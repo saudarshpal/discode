@@ -1,10 +1,10 @@
 import TopBar from "@/components/TopBar"
 import SideBar from "@/components/SideBar"
 import CommunityBar from "@/components/Home/CommunityBar"
-import Middle from "@/components/Home/Feed"
+import Feed from "@/components/Home/Feed"
 
 const HomePage = () => { 
-   console.log(import.meta.env.VITE_API_BASE_URL)
+
    return (
     <div className='bg-neutral-900 h-full w-screen'>
        <TopBar></TopBar>
@@ -13,11 +13,12 @@ const HomePage = () => {
              <SideBar/>
           </div>
           <div className='w-8/15 px-4 py-2'>
-             <Middle />
+             <Feed />
           </div>
           <div className='border-l border-neutral-700 px-5 py-2 w-4/15'>
-             <CommunityBar />
-          </div>
+             {/* displaying all the communities */}
+             <CommunityBar /> 
+          </div> 
        </div>
     </div>
   )

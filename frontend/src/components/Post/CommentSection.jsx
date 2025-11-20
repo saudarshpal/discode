@@ -13,21 +13,21 @@ const CommentSection =()=>{
   const postId = useRecoilValue(postIdAtom)
   const [modal,setModal] = useRecoilState(createModalAtom)
   const [postcomments,setPostComments] = useState([])
-  const [addcomment,setAddComment] = useState('')
-  const authHeader = localStorage.getItem('token')
+  const [addcomment,setAddComment] = useState()
+  const authHeader = localStorage.getItem('authHeader')
   
   const getPostComments = async()=>{
-    const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/${postId}/comments`,{
+    const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/post/comments/${postId}`,{
           headers : {
-            Authorization : 'Bearer '+authHeader
+            Authorization : authHeader
           }
     })
     setPostComments(response.data.comments)
   }
   const CreateComment = async()=>{
-       await axios.post( `${import.meta.env.VITE_API_BASE_URL}/${postId}/comments`,{content: comment},{
+       await axios.post( `${import.meta.env.VITE_API_BASE_URL}/post/comments/${postId}`,{content: comment},{
           headers : {
-            Authorization : 'Bearer '+authHeader
+            Authorization : authHeader
         }
       })
   }

@@ -5,8 +5,13 @@ import { useEffect, useState } from "react"
 
 const CommunityBar = () => {
   const [communities,setCommunities] = useState([])
+  const authHeaders = localStorage.getItem('authHeader')
   const fetchCommunities = async()=>{
-    const response = await axios.get(`${import.meta.env.VITE_APP_BASE_URL}/bulk`)
+    const response = await axios.get(`${import.meta.env.VITE_APP_BASE_URL}/community/bulk`,{
+      headers :{
+        'Authorization' : authHeaders
+      }
+    })
     setCommunities(response.data.commmunities)
   }
   useEffect(()=>{
@@ -21,7 +26,7 @@ const CommunityBar = () => {
             </div>
             <div className="w-full flex flex-col gap-2">
               {
-                // communities.map((c,index)=> <CommunityProfileCard key={index} community={c} />)
+                communities.map((c,index)=> <CommunityProfileCard key={index} community={c} />)
               }
             </div>
             

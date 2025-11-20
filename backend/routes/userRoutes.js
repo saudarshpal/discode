@@ -8,7 +8,7 @@ import { authMiddleware } from "../middlewares/auth.js";
 const router = express.Router()
 
 
-const upload = multer({dest : 'uploads/'})
+const upload = multer({dest : 'uploads/user/'})
 const uploadMiddleware = upload.fields([{name : 'avatar', maxCount : 1},{name : 'userBanner', maxCount : 1}])
 
 

@@ -12,12 +12,21 @@ const CommunityHomePage = () => {
   const {communityId} = useParams()
   const [community,setCommuntiy] = useState({})
   const [communityPosts,setCommunityPosts] = useState([])
+  const authHeader  = localStorage.getItem('authHeader')
   const getCommunity = async()=>{
-    const response = await axios.get(`${import.meta.env.VITE_APP_BASE_URL}/community/${communityId}`)
+    const response = await axios.get(`${import.meta.env.VITE_APP_BASE_URL}/community/${communityId}`,{
+        headers : {
+            'Authorization' : authHeader
+        }
+    })
     setCommuntiy(response.data.community)
   }
   const getCommunityPosts =async()=>{
-    const response = await axios.get(`${import.meta.env.VITE_APP_BASE_URL}/community/posts/${communityId}`)
+    const response = await axios.get(`${import.meta.env.VITE_APP_BASE_URL}/community/posts/${communityId}`,{
+        headers : {
+            'Authorization' : authHeader
+        }
+    })
     setCommunityPosts(response.data.posts)
   }
   useEffect(()=>{

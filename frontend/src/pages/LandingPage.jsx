@@ -16,7 +16,7 @@ const LandingPage = () => {
             <span className=" text-white text-7xl font-bold">CodeBuzz</span>
             <span className=" text-white text-md font-mds pl-2 pt-2">A community-driven space for coding discussions and discoveries</span>
        </div>
-       <div className='w-4/12 flex items-center justify-center h-screen '>
+       <div className='w-4/12 flex items-center h-screen '>
           {signInPage ? <SignIn toggle={toggle}/> : <SignUp toggle={toggle}/>} 
     </div>
     </div>

@@ -10,14 +10,14 @@ import usePosts from '@/hooks/usePosts'
 
 const Feed = () => {
   const modal = useRecoilValue(createModalAtom)
-  let posts = useRecoilValue(postAtom)
-  posts = usePosts()
+  let posts = useRecoilValue(postAtom) 
+  posts = usePosts() // fetching all the posts
   return (
     <>
        {modal=== "createPost" ? (<CreatePost />) :
              modal==="createCommunity" ? (<CreateCommunity/>):
              modal==="postComment" ? (<CommentSection />) :
-             posts.map((post,index)=><Post key={index} post={post}/>)
+             posts.map((post,index)=><Post key={index} post={post}/>) // displaying all the posts
         } 
     </>
   )

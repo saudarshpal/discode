@@ -8,8 +8,13 @@ import { useNavigate } from "react-router-dom"
 
 const UserProfileCard = ({userId}) => {
   const [user,setUser] = useState({})
+  const authHeader = localStorage.getItem('authHeader')
   const getUser = async()=>{
-    const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/user/${userId}`)
+    const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/user/${userId}`,{
+        headers : {
+            'Authorization' : authHeader
+        }
+    })
     setUser(response.data.user)
   }
   useEffect(()=>{
