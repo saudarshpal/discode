@@ -15,7 +15,7 @@ const CommentSection =()=>{
   const [postcomments,setPostComments] = useState([])
   const [addcomment,setAddComment] = useState()
   const authHeader = localStorage.getItem('authHeader')
-  
+
   const getPostComments = async()=>{
     const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/post/comments/${postId}`,{
           headers : {
@@ -31,8 +31,17 @@ const CommentSection =()=>{
         }
       })
   }
+  const fetchPostComments = async()=>{
+     const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/post/comments/${postId}`,{
+          headers : {
+            Authorization : authHeader
+        }
+      })
+      setPostComments(response.data.comments)
+  }
   useEffect(()=>{
     getPostComments()
+    fetchPostComments()
   },[])
   return (
     <>
@@ -51,13 +60,13 @@ const CommentSection =()=>{
                               className="bg-neutral-800 border-neutral-700 text-neutral-200 resize-none"/>
                     <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={CreateComment}>Comment</Button>
                   </div>
-                  <CommentsList comments={postcomments}/>  
+                  <CommentsList comments={postcomments} postId={postId}/>  
               </CardContent>
           </Card>
         </div>}
-  
+
     </>
-    
+
   );
 }
 

@@ -1,9 +1,9 @@
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { motion } from "framer-motion";
-import { ArrowBigDown, ArrowBigUp} from "lucide-react";
+import CommentVote from "./commentVote";
 
 
-const CommentsList = ({comments}) => {
+const CommentsList = ({comments,postId}) => {
   const totalcomments = comments.length
   return (
     <div className="max-h-80 overflow-y-auto space-y-4 pr-2">
@@ -21,9 +21,7 @@ const CommentsList = ({comments}) => {
                 <p className="text-sm text-zinc-400 leading-6">{c.text}</p>
                 <div className="place-self-start ">
                     <div className="text-white text-xs rounded-full flex flex-row items-center gap-1 ">
-                        <ArrowBigUp size={15} color="white" className="hover:bg-white/40 rounded-full cursor-pointer "/>
-                        
-                        <ArrowBigDown size={15} color="white" className="hover:bg-white/40 rounded-full cursor-pointer" />
+                       <CommentVote comment={c} postId={postId}/>
                     </div >
                 </div>
               </div>

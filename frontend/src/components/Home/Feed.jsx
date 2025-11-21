@@ -4,7 +4,7 @@ import Post from '../Post/Post'
 import { useRecoilValue } from 'recoil'
 import { createModalAtom } from '@/store/atoms/Modal'
 import { postAtom } from '@/store/atoms/Post'
-import CommentSection from '../Post/CommentSection'
+import CommentSection from '../Post/Comments/CommentSection'
 import CreateCommunity from './CreateCommunity'
 import usePosts from '@/hooks/usePosts'
 

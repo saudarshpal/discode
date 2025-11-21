@@ -6,12 +6,16 @@ import Post from "../Post/Post"
 import { useParams } from "react-router-dom"
 import axios from "axios"
 import { useEffect, useState } from "react"
+import { useRecoilValue } from "recoil"
+import { userAtom } from "@/store/atoms/User"
+import { Trash2 } from "lucide-react"
 
 
 const CommunityHomePage = () => {
   const {communityId} = useParams()
   const [community,setCommuntiy] = useState({})
   const [communityPosts,setCommunityPosts] = useState([])
+  const [follow,setFollow] = useState(false)
   const authHeader  = localStorage.getItem('authHeader')
   const getCommunity = async()=>{
     const response = await axios.get(`${import.meta.env.VITE_APP_BASE_URL}/community/${communityId}`,{
@@ -29,13 +33,23 @@ const CommunityHomePage = () => {
     })
     setCommunityPosts(response.data.posts)
   }
+  const handleDelete = async()=>{
+    await axios.delete(`${import.meta.env.VITE_APP_BASE_URL}/community/delete/${communityId}`,{
+        headers : {
+            'Authorization' : authHeader
+        }
+    })
+  }
+  const updateFollow = async()=>{
+    //    delay send using throttle
+  }
   useEffect(()=>{
     getCommunity()
     getCommunityPosts()
   },[])
   return (
     <div className="w-full">
-        <img src={Banner} alt="" className="relative rounded-2xl w-full h-[40vh]"></img>
+        {/* <img src={community.banner.url} alt="" className="relative rounded-2xl w-full h-[50vh]"></img> */}
         <div className="relative">
             <div className="flex justify-between mt-[-30px] pl-10">
                 <div className="flex flex-row items-end gap-2">
@@ -46,14 +60,14 @@ const CommunityHomePage = () => {
                     <h1 className="text-white text-4xl font-semibold">{community.name}</h1>
                 </div>
                 <div className="flex flex-row items-end gap-4">
-                    <div className=" text-white text-lg font-medium flex items-center gap-1 px-3 py-1 rounded-full border border-neutral-800 hover:shadow hover:shadow-neutral-600 cursor-pointer" onClick={()=>setModal("createPost")}>
-                        {/* Create<PlusIcon size={22} color="white" className="mt-1"/> either delte community or create post for community */}
+                    <div onClick={()=>setFollow(!follow)} className={`${follow ? "bg-red-600 border border-red-600 hover:shadow hover:shadow-red-300 " : "bg-sky-700 border border-sky-700 hover:shadow hover:shadow-sky-300 "} text-white text-center text-lg font-medium  gap-1 px-3 py-1 rounded-full  cursor-pointer w-25`}>
+                        {follow ? "Unfollow" : "Follow"}
                     </div>
-                    <div className="text-white text-lg font-medium flex items-center gap-1 px-3 py-1 rounded-full border border-neutral-800 hover:shadow hover:shadow-neutral-600 cursor-pointer" onClick={()=>setModal("createPost")}>
-                        {/* Follow follo community handler */}
-                    </div>
+                    {flag && <div onClick={handleDelete} className=" text-white text-lg font-medium flex items-center gap-1 px-3 py-1 rounded-full border border-neutral-800 hover:shadow hover:shadow-neutral-600 cursor-pointer">
+                        Delete {<Trash2 color="white" size={18}></Trash2>}
+                    </div>}
                 </div>
-            </div>   
+            </div>    
         </div>
         <div className="flex flex-row mt-8">
             <div className="w-2/3 p-2">
