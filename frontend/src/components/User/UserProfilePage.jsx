@@ -5,6 +5,8 @@ import UserDetails from "./UserDetails"
 import axios from "axios"
 import { useState } from "react"
 import { useEffect } from "react"
+import useThrottle from "@/hooks/useThrottle"
+import { useCallback } from "react"
 
 
 const UserProfilePage = ({userId}) => {
@@ -38,9 +40,15 @@ const UserProfilePage = ({userId}) => {
     })
         setUserCommunities(response.data.userCommunities)
     }
-  const updateFollow = async()=>{
-    //    delay send using throttle
-  }
+    const updateFollow = useCallback(async()=>{
+        const flag = follow ? "unfollow" : "follow"
+        await axios.post(`${import.meta.env.VITE_API_BASE_URL}/user/${flag}/${userId}`,{
+            headers :{
+                'Authorization' : authHeader
+            }
+        })
+    })
+  const throttledFollowUpdate = useThrottle(updateFollow,1000)
   useEffect(()=>{
       getUser()
       getUserPosts()
@@ -56,11 +64,13 @@ const UserProfilePage = ({userId}) => {
                         <AvatarImage src={`${user.profile.avatar.url}`}/>
                         <AvatarFallback>{user.username.charAt(0)}</AvatarFallback>
                     </Avatar>
-                    <h1 className="text-white text-4xl font-semibold">{user.usernmae}</h1>
+                    <h1 className="text-white text-4xl font-semibold">{user.username}</h1>
                 </div>
                 <div className="flex flex-row items-end gap-4">
-                     <div onClick={()=>setFollow(!follow)} className={`${follow ? "bg-red-600 border border-red-600 hover:shadow hover:shadow-red-300 " : "bg-sky-700 border border-sky-700 hover:shadow hover:shadow-sky-300 "} text-white text-center text-lg font-medium  gap-1 px-3 py-1 rounded-full  cursor-pointer w-25`}>
-                        {follow ? "Unfollow" : "Follow"}
+                     <div onClick={()=>{throttledFollowUpdate()
+                                        setFollow(!follow)               
+                     }}className={`${follow ? "bg-red-600 border border-red-600 hover:shadow hover:shadow-red-300 " : "bg-sky-700 border border-sky-700 hover:shadow hover:shadow-sky-300 "} text-white text-center text-lg font-medium  gap-1 px-3 py-1 rounded-full  cursor-pointer w-25`}>
+                        {follow ? "Unfollow" : "Follow"}  
                     </div>
                 </div>
             </div>  

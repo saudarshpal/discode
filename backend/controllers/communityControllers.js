@@ -165,6 +165,54 @@ export const getcommunityPosts = async(req,res)=>{
     }
 }
 
+export const followCommunity = async(req,res) =>{
+    const {userId} = req.userId
+    const {communityId} = req.params
+    try{
+        const community = await Community.findById(communityId)
+        if(!community) return res.status(404).json({
+            msg : "Community not Found"
+        })
+        if(community.subscribers.includes(userId)) return res.status(404).json({
+            msg  : "Already Following"
+        })
+        community.subscribers.push(userId)
+        await community.save()
+        return res.status(200).json({
+            msg : "Followed Community"
+        })
+    }catch(err){
+        console.log(err)
+        return res.jstatus(500).json({
+            msg : "Internal Server Error"
+        })
+    }
+}
+
+export const unFollowCommunity = async(req,res) =>{
+    const {userId} = req.userId
+    const {communityId} = req.params
+    try{
+        const community = await Community.findById(communityId)
+        if(!community) return res.status(404).json({
+            msg : "Community not Found"
+        })
+        if(!community.subscribers.includes(userId)) return res.status(404).json({
+            msg  : "Not Following"
+        })
+        community.subscribers.filter(id=> id.toString() !== userId )
+        await community.save()
+        return res.status(200).json({
+            msg : "UnFollowed Community"
+        })
+    }catch(err){
+        console.log(err)
+        return res.jstatus(500).json({
+            msg : "Internal Server Error"
+        })
+    }
+}
+
 export const deleteCommunity = async(req,res)=>{
     const {communityId} = req.params       
     try{

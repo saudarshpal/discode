@@ -25,19 +25,11 @@ const CommentSection =()=>{
     setPostComments(response.data.comments)
   }
   const CreateComment = async()=>{
-       await axios.post( `${import.meta.env.VITE_API_BASE_URL}/post/comments/${postId}`,{content: comment},{
+       await axios.post( `${import.meta.env.VITE_API_BASE_URL}/post/comment/${postId}`,{content: comment},{
           headers : {
             Authorization : authHeader
         }
       })
-  }
-  const fetchPostComments = async()=>{
-     const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/post/comments/${postId}`,{
-          headers : {
-            Authorization : authHeader
-        }
-      })
-      setPostComments(response.data.comments)
   }
   useEffect(()=>{
     getPostComments()

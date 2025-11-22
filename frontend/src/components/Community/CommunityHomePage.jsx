@@ -1,6 +1,4 @@
-import { PlusIcon } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
-import Banner from '@/assets/Banner.jpg'
 import CommuntiyDetails from "./CommuntiyDetails"
 import Post from "../Post/Post"
 import { useParams } from "react-router-dom"
@@ -9,13 +7,18 @@ import { useEffect, useState } from "react"
 import { useRecoilValue } from "recoil"
 import { userAtom } from "@/store/atoms/User"
 import { Trash2 } from "lucide-react"
+import useThrottle from "@/hooks/useThrottle"
+import { useCallback } from "react"
 
 
 const CommunityHomePage = () => {
+  const userId = useRecoilValue(userAtom)
   const {communityId} = useParams()
   const [community,setCommuntiy] = useState({})
   const [communityPosts,setCommunityPosts] = useState([])
   const [follow,setFollow] = useState(false)
+  let flag = false
+  if(community.admin.toString() === userId) flag = true 
   const authHeader  = localStorage.getItem('authHeader')
   const getCommunity = async()=>{
     const response = await axios.get(`${import.meta.env.VITE_APP_BASE_URL}/community/${communityId}`,{
@@ -40,16 +43,22 @@ const CommunityHomePage = () => {
         }
     })
   }
-  const updateFollow = async()=>{
-    //    delay send using throttle
-  }
+  const updateFollow = useCallback(async()=>{
+    const flag = follow ? "unfollow" : "follow"
+    await axios.post(`${import.meta.env.VITE_APP_BASE_URL}/commnuity/${flag}/${communityId}`,{
+        headers : {
+            'Authorization' : authHeader
+        }
+    })
+  })
+  const throttlesFollowUpdate = useThrottle(updateFollow,1000)
   useEffect(()=>{
     getCommunity()
     getCommunityPosts()
   },[])
   return (
     <div className="w-full">
-        {/* <img src={community.banner.url} alt="" className="relative rounded-2xl w-full h-[50vh]"></img> */}
+        <img src={community.banner.url} alt="" className="relative rounded-2xl w-full h-[50vh]"></img>
         <div className="relative">
             <div className="flex justify-between mt-[-30px] pl-10">
                 <div className="flex flex-row items-end gap-2">
@@ -60,7 +69,9 @@ const CommunityHomePage = () => {
                     <h1 className="text-white text-4xl font-semibold">{community.name}</h1>
                 </div>
                 <div className="flex flex-row items-end gap-4">
-                    <div onClick={()=>setFollow(!follow)} className={`${follow ? "bg-red-600 border border-red-600 hover:shadow hover:shadow-red-300 " : "bg-sky-700 border border-sky-700 hover:shadow hover:shadow-sky-300 "} text-white text-center text-lg font-medium  gap-1 px-3 py-1 rounded-full  cursor-pointer w-25`}>
+                    <div onClick={()=>{setFollow(!follow)
+                                       throttlesFollowUpdate()
+                    }} className={`${follow ? "bg-red-600 border border-red-600 hover:shadow hover:shadow-red-300 " : "bg-sky-700 border border-sky-700 hover:shadow hover:shadow-sky-300 "} text-white text-center text-lg font-medium  gap-1 px-3 py-1 rounded-full  cursor-pointer w-25`}>
                         {follow ? "Unfollow" : "Follow"}
                     </div>
                     {flag && <div onClick={handleDelete} className=" text-white text-lg font-medium flex items-center gap-1 px-3 py-1 rounded-full border border-neutral-800 hover:shadow hover:shadow-neutral-600 cursor-pointer">

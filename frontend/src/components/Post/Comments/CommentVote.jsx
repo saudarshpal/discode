@@ -69,7 +69,7 @@ const CommentVote = ({comment,postId}) => {
       }   
     } 
     const handleUpdateVote = useCallback(async(vote)=>{
-        await axios.post(`${import.meta.env.VITE_API_BASE_URL}/post/comment/${postId}/${commentId}`,{voteType:vote},{
+        await axios.post(`${import.meta.env.VITE_API_BASE_URL}/post/comment/vote/${postId}/${commentId}`,{voteType:vote},{
             headers : {
                 'Authorization' : authHeader
             }

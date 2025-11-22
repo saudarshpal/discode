@@ -89,7 +89,7 @@ const Post=({post})=>{
           }
       }).then(res=>console.log(res.data))
   },[authHeader,commentId,postId]) 
-  const throttledVoteRequest = useThrottle(handleUpdateVote, 4000)
+  const throttledVoteRequest = useThrottle(handleUpdateVote, 2000)
   
   useEffect(()=>{
     if(post?._id) setPostId(post._id)

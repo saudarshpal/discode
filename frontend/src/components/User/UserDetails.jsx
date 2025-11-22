@@ -9,7 +9,7 @@ const UserDetails = ({user,totalposts,communities}) => {
         <div className='flex flex-col '>
             <div className="flex flex-row items-center gap-2">
                <Avatar>
-                  <AvatarImage />
+                  <AvatarImage src={user.profile.avatar}/>
                   <AvatarFallback>{user.username.charAt(0)}</AvatarFallback>
                </Avatar>
                <span className=" text-neutral-300">{user.profile.displayName}</span>

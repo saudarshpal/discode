@@ -19,7 +19,7 @@ const SignUp = ({toggle}) => {
           <Heading label="SignUp"></Heading>
           <SubHeading label="Enter your information to create account"></SubHeading>
           <InputBox onChange={e=>setUsername(e.target.value)}title={"Username"} holder={"Leojosepg21"}></InputBox>
-          <InputBox onChange={e=>setEmailName(e.target.value)} title={"Email"} holder={"leoj@example.com"}></InputBox>
+          <InputBox onChange={e=>setEmail(e.target.value)} title={"Email"} holder={"leoj@example.com"}></InputBox>
           <InputBox onChange={e=>setPassword(e.target.value)}title={"Password"} holder={"123456"}></InputBox>
           <Button buttonlabel="Sign Up" onClick={async()=>{
             try{

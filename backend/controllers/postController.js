@@ -137,12 +137,14 @@ export const voteOnPost = async(req,res)=>{
         else if(voteType === "downvote"){
             post.votes.downvotes++;
         }
-        else if(voteType === "removeUpvote" && post.votes.upvotes > 0){
-            post.votes.upvotes --;
-        }
-        else if(voteType === "removeDownvote" && post.votes.downvotes > 0){
-            post.votes.downvotes --;
-        }  
+        else if(voteType === "unvote"){
+            if(req.body.voteType === 'upvote' && post.votes.upvotes > 0){
+                post.votes.upvotes--;
+            }
+            else if(req.body.voteType === 'downvote' && post.votes.downvotes > 0){
+                post.votes.downvotes--;
+            }
+        } 
         await post.save() 
         return res.status(200).json({
             msg : "Voted Successfully"
@@ -152,7 +154,7 @@ export const voteOnPost = async(req,res)=>{
         return res.status(500).json({
             msg:"Internal server error"
         })
-    }   
+    } 
 }
 
 export const commentOnPost = async(req,res)=>{
@@ -259,12 +261,14 @@ export const voteOnComment = async(req,res)=>{
         else if(voteType === "downvote"){
             comment.votes.downvotes++;
         }
-        else if(voteType === "removeUpvote" && comment.votes.upvotes > 0){
-            comment.votes.upvotes--;
-        }
-        else if(voteType === "removeDownvote" && comment.votes.downvotes > 0){
-            comment.votes.downvotes--;
-        }
+        else if(voteType === "unvote"){
+            if(req.body.voteType === 'upvote' && comment.votes.upvotes > 0){
+                comment.votes.upvotes--;
+            }
+            else if(req.body.voteType === 'downvote' && comment.votes.downvotes > 0){
+                comment.votes.downvotes--;
+            }
+        } 
         console.log(comment.votes)
         await post.save()
         return res.status(200).json({

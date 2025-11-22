@@ -13,13 +13,13 @@ const uploadImages = upload.array('postImages',10)
 router.post('/create',uploadImages,createPost) // create a post
 router.get('/all',getAllPosts) // get all posts
 router.get('/own',getYourPosts) // get your posts
-router.delete('/:postId/delete',deletePost) // delete a post
 router.get('/:postId',getPostById) // get post by id
-router.post('/:postId/votes',voteOnPost) // vote on post
-router.post('/comments/:postId',commentOnPost) // comment on post
+router.delete('/delete/:postId',deletePost) // delete a post
+router.post('/vote/:postId',voteOnPost) // vote on post
+router.post('/comment/:postId',commentOnPost) // comment on post
 router.get('/comments/:postId',getAllcomments) // get all comments on post
-router.delete('/:postId/comments/:commentId/delete',deleteComment) // delete comment
-router.post('/:postId/comments/:commentId/votes',voteOnComment)// vote on comment
+router.delete('/comment/delete/:postId/:commentId',deleteComment) // delete comment
+router.post('/comment/vote/:postId/:commentId',voteOnComment)// vote on comment
 
 
 

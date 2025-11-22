@@ -24,7 +24,7 @@ const UserProfileCard = ({userId}) => {
   return (
         <Card className='bg-black flex flex-row itmes-center p-2 border-none shadow-none gap-2 cursor-pointer hover:shadow hover:shadow-neutral-600  '>
             <Avatar onClick={()=>navigate(`/user/${userId}`)}>
-                <AvatarImage />
+                <AvatarImage src={user.profile.avatar} />
                 <AvatarFallback>{user.username.charAt(0)}</AvatarFallback>
             </Avatar>
             <h3 className="text-white   font-normal pt-1/2 pt-1">{user.username}</h3>
