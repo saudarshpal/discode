@@ -7,7 +7,7 @@ import { authMiddleware } from '../middlewares/auth.js'
 const router = express.Router()
 router.use(authMiddleware)
 
-const upload =  multer({dest :'uploads/community/'})
+const upload =  multer({dest :'tmp/uploads/community/'})
 const uploadBanner = upload.single('communityBanner')
 
 

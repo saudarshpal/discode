@@ -7,7 +7,7 @@ const router = express.Router()
 
 router.use(authMiddleware)
 
-const upload = multer({dest : '/uploads/images/'})
+const upload = multer({dest : 'tmp/uploads/images/'})
 const uploadImages = upload.array('postImages',10)
 
 router.post('/create',uploadImages,createPost) // create a post
