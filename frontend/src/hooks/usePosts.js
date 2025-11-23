@@ -5,7 +5,7 @@ import { useRecoilState } from "recoil"
 
 const usePosts = () => {
    const [posts,setPosts] = useRecoilState(postAtom)
-   const authHeaders = 'Bearer '+localStorage.getItem("token")
+   const authHeaders = localStorage.getItem('authHeader')
    const fecthPosts = async()=>{
        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/post/all`,{
           headers : {

@@ -5,6 +5,8 @@ import { Upload, X } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
+import { useState } from "react"
+import axios from "axios"
 
 
 const CreateCommunity = () => {
@@ -20,11 +22,12 @@ const CreateCommunity = () => {
     setCommunity({...community,banner : banner})
   }
   const handleCreate = async() =>{
-      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/community/create`,{community},{
-      headers : {
-        'Authorization' : authHeader
-      }
-    })
+      const response = await axios.put(`${import.meta.env.VITE_API_BASE_URL}/community/create`,community,{
+            headers :{
+              'Authorization' : authHeader
+            }
+          })
+      setModal(null)
   }
   return (
     <>
@@ -56,7 +59,7 @@ const CreateCommunity = () => {
                 </label>
               </div>
               <div className="flex justify-end">
-                <Button onClick={handleCreate} className="bg-sky-700 hover:bg-sky-600 text-white px-6 py-2 rounded-xl transition"> Create</Button>
+                <Button onClick={handleCreate} className="bg-sky-700 hover:bg-sky-600 text-white px-6 py-2 rounded-xl transition cursor-pointer"> Create</Button>
               </div>
             </CardContent>
           </Card>

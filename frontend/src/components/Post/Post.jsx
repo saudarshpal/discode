@@ -9,11 +9,14 @@ import { useNavigate } from "react-router-dom"
 import ImageCarousel from "./ImageCarousel"
 import { useEffect } from "react"
 import { postIdAtom } from "@/store/atoms/Post"
+import { useCallback } from "react"
+import useThrottle from "@/hooks/useThrottle"
   
 
 
 const Post=({post})=>{
   const setPostId = useSetRecoilState(postIdAtom)
+  const postId = post._id
   const communityId = post.community
   const commentCount = post.comments.length
   const upvotes  = post.votes.upvotes
@@ -88,16 +91,16 @@ const Post=({post})=>{
               'Authorization' : authHeader
           }
       }).then(res=>console.log(res.data))
-  },[authHeader,commentId,postId]) 
+  },[authHeader,postId]) 
   const throttledVoteRequest = useThrottle(handleUpdateVote, 2000)
   
   useEffect(()=>{
     if(post?._id) setPostId(post._id)
-  },[post._id])
+  },[postId])
   return (
     <div className="border-solid border-y border-neutral-800 p-1">
-        <div className="flex flex-col gap-1 hover:bg-neutral-800 rounded-lg px-4 py-1">
-            <div className="flex itmes-center justify-start gap-2">
+        <div className="flex flex-col gap-1 hover:bg-neutral-800 rounded-lg px-4 py-1 ">
+            <div className="flex itmes-center justify-start  pt-2 gap-2">
                 <Avatar className='w-8 h-8 cursor-pointer' onClick={()=>navigate(`/user/${userId}`)}>
                   <AvatarImage />
                   <AvatarFallback>{post.author.charAt(0)}</AvatarFallback>
@@ -107,10 +110,12 @@ const Post=({post})=>{
                   {post.community && <span onClick={()=>navigate(`/community/${communityId}`)} className="text-neutral-500 text-sm font-semibold pt-1 hover:text-neutral-300 cursor-pointer">[{post.community}]</span>}
                 </div>  
             </div>
-            <h2 className="text-xl font-semibold text-white">{post.title}</h2>
-            <div className="w-full text-white/70 text-md "> {post.content} </div>
+            <div className="flex flex-col px-2 py-2.5">
+               <h2 className="text-xl font-semibold text-white">{post.title}</h2>
+               <div className="w-full text-white/70 text-md "> {post.content} </div>
+            </div>
             {images && <ImageCarousel images={images}/>}
-            <div className="flex flex-row itmes-center gap-2 ">
+            <div className="flex flex-row itmes-center gap-2  pt-3 ">
                 <div  className={`${buttoncolor} text-white text-sm rounded-full flex flex-row items-center gap-1 p-1.5`}>
                   {upVoteClick ? <TbArrowBigUpFilled size={18} color="white" onClick={handleUpVote} className={`rounded-full cursor-pointer`}/>
                   : <TbArrowBigUp size={18} color="white" onClick={handleUpVote} className={`rounded-full cursor-pointer`}/>}

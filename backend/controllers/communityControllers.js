@@ -23,7 +23,7 @@ export const getCommunities = async(req,res)=>{
     }
 }
 export const userCommunities = async(req,res)=>{
-    const {userId}  = req.body
+    const userId  = req.userId
     try{
         let user = await User.findById(userId)
         if(!user){

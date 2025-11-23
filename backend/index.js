@@ -11,6 +11,9 @@ connectToDB();
 app.use(cors())
 app.use(express.json())
 
+app.get('/',(req,res)=>{
+    res.status(200).send("Backend is Running")
+})
 app.use('/api/v1',primaryRouter)
 
 

@@ -18,15 +18,15 @@ const SignUp = ({toggle}) => {
         <div className="bg-neutral-800 flex flex-col px-4 w-80 h-max rounded-lg">
           <Heading label="SignUp"></Heading>
           <SubHeading label="Enter your information to create account"></SubHeading>
-          <InputBox onChange={e=>setUsername(e.target.value)}title={"Username"} holder={"Leojosepg21"}></InputBox>
-          <InputBox onChange={e=>setEmail(e.target.value)} title={"Email"} holder={"leoj@example.com"}></InputBox>
-          <InputBox onChange={e=>setPassword(e.target.value)}title={"Password"} holder={"123456"}></InputBox>
+          <InputBox  onChange={e=>setUsername(e.target.value)}title={"Username"} holder={"Leojosepg21"}></InputBox>
+          <InputBox  onChange={e=>setEmail(e.target.value)} title={"Email"} holder={"leoj@example.com"}></InputBox>
+          <InputBox  onChange={e=>setPassword(e.target.value)}title={"Password"} holder={"123456"}></InputBox>
           <Button buttonlabel="Sign Up" onClick={async()=>{
             try{
               const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/user/signup`,{
                     username,email,password })
               localStorage.setItem('authHeader','Bearer '+response.data.token)
-              {navigate("/dashboard")}
+              navigate("/homepage")
             }catch(err){ console.log(err) }
           }}></Button>
           <WarningFooter label={"Already have an account?"} buttonText={"SignIn"} onClick={toggle}></WarningFooter>

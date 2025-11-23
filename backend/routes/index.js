@@ -6,7 +6,6 @@ import postRouter from './postRoutes.js'
 
 const router = express.Router()
 
-
 router.use('/user',userRouter);
 router.use('/community',communityRouter)
 router.use('/post',postRouter)

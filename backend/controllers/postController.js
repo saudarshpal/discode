@@ -1,3 +1,4 @@
+import cloudinary from "../config.js"
 import Community from "../models/communityModel.js"
 import Post from "../models/postModel.js"
 import User from "../models/userModel.js"
@@ -8,7 +9,7 @@ export const createPost = async(req,res)=>{
     let postImages = []
     const userId = req.userId
     const {title,content,communityName} = req.body
-    console.log("Post data received:", { title, content, communityName });
+    console.log("Post data received:", { title, content, communityName,});
     try{
         let user = await User.findById(userId) 
         let community = await Community.findOne({
@@ -19,11 +20,16 @@ export const createPost = async(req,res)=>{
                 msg:"User/Community not found"
             })
         }
-        if(req.files && req.files.length > 0){
-            postImages = req.files.map(image => ({
-                url : image.path,
-                public_id : image.filename
-            }))
+        if(req.files ){
+            for(let file of req.files){
+                  const result = await cloudinary.uploader.upload(file.path,{
+                    folder : "postImages"
+                  })
+                  postImages.push({
+                  url : result.secure_url,
+                  public_id : result.public_id
+            })
+            }  
         }
         await Post.create({
             title,
